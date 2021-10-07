@@ -4,6 +4,8 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { useState } from "react";
 import "./App.css";
@@ -67,6 +69,8 @@ function App() {
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
+        console.log(user);
+        setError("");
       })
       .catch((error) => {
         setError(error.message);
@@ -77,8 +81,22 @@ function App() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
-        console.log(user);
-        setError("Sign Up Successful");
+        verifyEmail();
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser).then((result) => {
+      console.log(result);
+      setError("Email Sent Pleasse verify");
+    });
+  };
+  const handleResetPassword = () => {
+    sendPasswordResetEmail(auth, email)
+      .then((result) => {
+        setError("Password reset link sent to email.");
       })
       .catch((error) => {
         setError(error.message);
@@ -140,6 +158,13 @@ function App() {
         <div className="row mb-3 text-danger">{error}</div>
         <button type="submit" className="btn btn-primary">
           {isLogin ? "Login" : "Register"}
+        </button>
+        <button
+          onClick={handleResetPassword}
+          type="button"
+          className="btn btn-secondary btn-sm"
+        >
+          Reset Password
         </button>
       </form>
       <div></div>
