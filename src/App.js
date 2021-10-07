@@ -3,6 +3,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useState } from "react";
 import "./App.css";
@@ -32,6 +33,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
   const auth = getAuth();
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, GoogleProvider).then((result) => {
@@ -57,6 +59,21 @@ function App() {
       setError("password must contain two Uppercase Letter");
       return;
     }
+
+    isLogin ? processLogin(email, password) : registerNewUser(email, password);
+  };
+
+  const processLogin = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((result) => {
+        const user = result.user;
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
+
+  const registerNewUser = (email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
@@ -67,10 +84,16 @@ function App() {
         setError(error.message);
       });
   };
+
+  const toggleLogin = (e) => {
+    setIsLogin(e.target.checked);
+  };
   return (
     <div className="mx-5 my-2">
       <form onSubmit={handleRegistration}>
-        <h3 className="text-primary">Please Register</h3>
+        <h3 className="text-primary">
+          Please {isLogin ? "Login" : "Register"}
+        </h3>
         <div className="row mb-3">
           <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">
             Email
@@ -99,9 +122,24 @@ function App() {
             />
           </div>
         </div>
+        <div className="row mb-3">
+          <div className="col-sm-10 offset-sm-2">
+            <div className="form-check">
+              <input
+                onChange={toggleLogin}
+                className="form-check-input"
+                type="checkbox"
+                id="gridCheck1"
+              />
+              <label className="form-check-label" htmlFor="gridCheck1">
+                Already Registered?
+              </label>
+            </div>
+          </div>
+        </div>
         <div className="row mb-3 text-danger">{error}</div>
         <button type="submit" className="btn btn-primary">
-          Register
+          {isLogin ? "Login" : "Register"}
         </button>
       </form>
       <div></div>
