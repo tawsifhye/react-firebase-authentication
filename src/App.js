@@ -1,4 +1,9 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { useState } from "react";
 import "./App.css";
 import initializeAuthentication from "./Firebase/firebase.initialize";
@@ -25,7 +30,14 @@ function App() {
   };
 
   const handleRegistration = (e) => {
-    console.log(email, password);
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     e.preventDefault();
   };
   return (
@@ -33,7 +45,7 @@ function App() {
       <form onSubmit={handleRegistration}>
         <h3 className="text-primary">Please Register</h3>
         <div className="row mb-3">
-          <label for="inputEmail3" className="col-sm-2 col-form-label">
+          <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">
             Email
           </label>
           <div className="col-sm-10">
@@ -42,11 +54,12 @@ function App() {
               type="email"
               className="form-control"
               id="inputEmail3"
+              required
             />
           </div>
         </div>
         <div className="row mb-3">
-          <label for="inputPassword3" className="col-sm-2 col-form-label">
+          <label htmlFor="inputPassword3" className="col-sm-2 col-form-label">
             Password
           </label>
           <div className="col-sm-10">
@@ -55,13 +68,15 @@ function App() {
               type="password"
               className="form-control"
               id="inputPassword3"
+              required
             />
           </div>
         </div>
         <button type="submit" className="btn btn-primary">
-          Sign in
+          Register
         </button>
       </form>
+      <div></div>
       <br /> <br /> <br />
       <div>--------------------------------------------------------</div>
       <button onClick={handleGoogleSignIn}>Google Sign In</button>
