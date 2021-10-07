@@ -11,9 +11,27 @@ import initializeAuthentication from "./Firebase/firebase.initialize";
 initializeAuthentication();
 const GoogleProvider = new GoogleAuthProvider();
 
+// ****pawssword vbalidation RegExp***
+// 8 characters length
+// 2 letters in Upper Case
+// 1 Special Character (!@#$&*)
+// 2 numerals (0-9)
+// 3 letters in Lower Case
+
+// regex: ^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8}$
+// Explanation:
+// ^                         Start anchor
+// (?=.*[A-Z].*[A-Z])        Ensure string has two uppercase letters.
+// (?=.*[!@#$&*])            Ensure string has one special case letter.
+// (?=.*[0-9].*[0-9])        Ensure string has two digits.
+// (?=.*[a-z].*[a-z].*[a-z]) Ensure string has three lowercase letters.
+// .{8}                      Ensure string is of length 8.
+// $                         End anchor.
+
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const auth = getAuth();
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, GoogleProvider).then((result) => {
@@ -30,15 +48,24 @@ function App() {
   };
 
   const handleRegistration = (e) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      setError("Password should be at least 6 characters");
+      return;
+    }
+    if (!/(?=.*[A-Z].*[A-Z])/.test(password)) {
+      setError("password must contain two Uppercase Letter");
+      return;
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
         console.log(user);
+        setError("Sign Up Successful");
       })
       .catch((error) => {
-        console.log(error);
+        setError(error.message);
       });
-    e.preventDefault();
   };
   return (
     <div className="mx-5 my-2">
@@ -72,6 +99,7 @@ function App() {
             />
           </div>
         </div>
+        <div className="row mb-3 text-danger">{error}</div>
         <button type="submit" className="btn btn-primary">
           Register
         </button>
